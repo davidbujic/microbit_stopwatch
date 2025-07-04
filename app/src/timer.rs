@@ -7,9 +7,9 @@ use cortex_m::interrupt::{free, Mutex};
 
 
 use microbit::{
-    board::Board,
     hal::{
-        pac::{interrupt, TIMER1}, timer::{Timer}
+        pac::{interrupt, TIMER1},
+        timer::{Timer}
     },
     pac::{self},
 };
@@ -18,14 +18,12 @@ static TIMER: Mutex<RefCell<Option<Timer<TIMER1>>>> = Mutex::new(RefCell::new(No
 static SECONDS: Mutex<RefCell<u32>> = Mutex::new(RefCell::new(0));
 static IS_RUNNING: Mutex<RefCell<bool>> = Mutex::new(RefCell::new(false));
 
-pub fn init_timer() {
-    let board = Board::take().unwrap();
-
-    let mut timer = Timer::new(board.TIMER1);
+pub fn init_timer(timer1: TIMER1) {
+    let mut timer = Timer::new(timer1);
     timer.enable_interrupt();
     timer.start(1_000_000u32);
 
-    cortex_m::interrupt::free(move |cs| {
+    free(move |cs| {
         unsafe {
             pac::NVIC::unmask(pac::Interrupt::TIMER1);
         }
@@ -37,7 +35,7 @@ pub fn init_timer() {
 
 #[interrupt]
 fn TIMER1() {
-    cortex_m::interrupt::free(|cs| {
+    free(|cs| {
         if let Some(ref mut timer) = TIMER.borrow(cs).borrow_mut().as_mut() {
             timer.reset_event();
 

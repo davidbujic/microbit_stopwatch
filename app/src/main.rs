@@ -13,11 +13,13 @@ mod timer;
 
 #[entry]
 fn main() -> ! {
-    info!("Hello world!");
+    info!("Stopwatch example.");
 
-    // buttons::init_buttons();
-    timer::init_timer();
+    let board = microbit::board::Board::take().unwrap();
+
+    timer::init_timer(board.TIMER1);
     timer::start_stopwatch();
+    buttons::init_buttons(board.GPIOTE, board.buttons);
 
     loop {
         
