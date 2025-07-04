@@ -9,12 +9,15 @@ use defmt_rtt as _;
 use microbit as _;
 
 mod buttons;
+mod timer;
 
 #[entry]
 fn main() -> ! {
     info!("Hello world!");
 
-    buttons::init_buttons();
+    // buttons::init_buttons();
+    timer::init_timer();
+    timer::start_stopwatch();
 
     loop {
         
