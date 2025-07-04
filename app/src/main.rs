@@ -8,11 +8,15 @@ use defmt::info;
 use defmt_rtt as _;
 use microbit as _;
 
+mod buttons;
+
 #[entry]
 fn main() -> ! {
     info!("Hello world!");
 
+    buttons::init_buttons();
+
     loop {
-        // your code goes here
+        
     }
 }
