@@ -47,15 +47,6 @@ fn GPIOTE() {
             let button_a_pressed = gpiote.channel0().is_event_triggered();
             let button_b_pressed = gpiote.channel1().is_event_triggered();
 
-            // defmt::info!(
-            //     "Button pressed {:?}",
-            //     match (button_a_pressed, button_b_pressed) {
-            //         (false, false) => "",
-            //         (true, false) => "A",
-            //         (false, true) => "B",
-            //         (true, true) => "A + B",
-            //     }
-            // );
             match (button_a_pressed, button_b_pressed) {
                 (false, false) => {},
                 (true, false) => {

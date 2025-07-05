@@ -11,6 +11,7 @@ cortex-m-rt = "0.7"
 cortex-m-semihosting = "0.5"
 defmt = "1.0.1"
 defmt-rtt = "1.0.0"
+microbit-text = "1.0.0"
 microbit-v2 = "0.15.1"
 panic-halt = "1.0.0"
 

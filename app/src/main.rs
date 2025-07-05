@@ -10,6 +10,7 @@ use microbit as _;
 
 mod buttons;
 mod timer;
+mod display;
 
 #[entry]
 fn main() -> ! {
@@ -17,11 +18,11 @@ fn main() -> ! {
 
     let board = microbit::board::Board::take().unwrap();
 
-    timer::init_timer(board.TIMER1);
-    timer::start_stopwatch();
-    buttons::init_buttons(board.GPIOTE, board.buttons);
+    // timer::init_timer(board.TIMER1);
+    // timer::start_stopwatch();
+    // buttons::init_buttons(board.GPIOTE, board.buttons);
 
-    loop {
-        
-    }
+    display::init_display(board.CLOCK, board.RTC0, board.TIMER0, board.display_pins, board.NVIC);
+
+    loop {}
 }
