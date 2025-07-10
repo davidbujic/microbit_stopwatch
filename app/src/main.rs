@@ -17,12 +17,10 @@ fn main() -> ! {
     info!("Stopwatch example.");
 
     let board = microbit::board::Board::take().unwrap();
-
-    // timer::init_timer(board.TIMER1);
-    // timer::start_stopwatch();
-    // buttons::init_buttons(board.GPIOTE, board.buttons);
-
-    display::init_display(board.CLOCK, board.RTC0, board.TIMER0, board.display_pins, board.NVIC, board.TIMER1, board.GPIOTE, board.buttons);
+    
+    timer::init_timer(board.TIMER1);
+    buttons::init_buttons(board.GPIOTE, board.buttons);
+    display::init_display(board.CLOCK, board.RTC0, board.TIMER0, board.display_pins, board.NVIC);
 
     loop {}
 }
