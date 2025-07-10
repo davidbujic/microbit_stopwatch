@@ -11,17 +11,23 @@ use microbit::{
         clocks::Clocks,
         rtc::{Rtc, RtcInterrupt},
     },
-    pac::{self, interrupt, RTC0, TIMER0}
+    pac::{self, interrupt, RTC0, TIMER0, TIMER1},
+    board::Buttons
 };
 
 use microbit_text::scrolling::Animate;
 use microbit_text::scrolling_text::ScrollingStaticText;
 
+use crate::timer;
+use crate::buttons;
+
 static DISPLAY: Mutex<RefCell<Option<Display<TIMER0>>>> = Mutex::new(RefCell::new(None));
 static ANIM_TIMER: Mutex<RefCell<Option<Rtc<RTC0>>>> = Mutex::new(RefCell::new(None));
 static SCROLLER: Mutex<RefCell<Option<ScrollingStaticText>>> = Mutex::new(RefCell::new(None));
 
-pub fn init_display(board_clock: pac::CLOCK, board_rtc: pac::RTC0, board_timer: TIMER0, board_display_pins: DisplayPins, mut board_nvic: pac::NVIC) {
+static mut SECONDS_BUFFER: [u8; 2] = [b'0', b'0'];
+
+pub fn init_display(board_clock: pac::CLOCK, board_rtc: pac::RTC0, board_timer: TIMER0, board_display_pins: DisplayPins, mut board_nvic: pac::NVIC, timer1: TIMER1, board_gpiote: pac::GPIOTE, board_buttons: Buttons) {
     Clocks::new(board_clock).start_lfclk();
 
     let mut rtc0 = Rtc::new(board_rtc, 2047).unwrap();
@@ -32,7 +38,7 @@ pub fn init_display(board_clock: pac::CLOCK, board_rtc: pac::RTC0, board_timer: 
     let display = Display::new(board_timer, board_display_pins);
 
     let mut scroller = ScrollingStaticText::default();
-    scroller.set_message(b"Hello, world!");
+    scroller.set_message(b"");
 
     cortex_m::interrupt::free(|cs| {
         *DISPLAY.borrow(cs).borrow_mut() = Some(display);
@@ -45,6 +51,11 @@ pub fn init_display(board_clock: pac::CLOCK, board_rtc: pac::RTC0, board_timer: 
         pac::NVIC::unmask(pac::Interrupt::RTC0);
         pac::NVIC::unmask(pac::Interrupt::TIMER0);
     }
+
+    // timer::init_timer(timer1);
+    // timer::start_stopwatch();
+    timer::init_timer(timer1);
+    buttons::init_buttons(board_gpiote, board_buttons);
 }
 
 #[interrupt]
@@ -69,6 +80,13 @@ unsafe fn RTC0() {
                     if let Some(display) = DISPLAY.borrow(cs).borrow_mut().as_mut() {
                         display.show_frame(&frame);
                     }
+                } else {
+                    let seconds = timer::get_seconds();
+                    let tens = (seconds / 10) + b'0';
+                    let ones = (seconds % 10) + b'0';
+                    SECONDS_BUFFER[0] = tens;
+                    SECONDS_BUFFER[1] = ones;
+                    scroller.set_message(&SECONDS_BUFFER);
                 }
             }
         }

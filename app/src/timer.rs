@@ -1,4 +1,3 @@
-use defmt::info;
 use defmt_rtt as _;
 use panic_halt as _;
 
@@ -15,7 +14,7 @@ use microbit::{
 };
 
 static TIMER: Mutex<RefCell<Option<Timer<TIMER1>>>> = Mutex::new(RefCell::new(None));
-static SECONDS: Mutex<RefCell<u32>> = Mutex::new(RefCell::new(0));
+static SECONDS: Mutex<RefCell<u8>> = Mutex::new(RefCell::new(0));
 static IS_RUNNING: Mutex<RefCell<bool>> = Mutex::new(RefCell::new(false));
 
 pub fn init_timer(timer1: TIMER1) {
@@ -43,7 +42,6 @@ fn TIMER1() {
             if is_running {
                 let mut seconds = SECONDS.borrow(cs).borrow_mut();
                 *seconds += 1;
-                info!("Seconds: {}", *seconds);
 
                 if *seconds == 60 {
                     *seconds = 0;
@@ -74,7 +72,7 @@ pub fn reset_stopwatch() {
     })
 }
 
-pub fn get_seconds() -> u32 {
+pub fn get_seconds() -> u8 {
     free(|cs| {
         *SECONDS.borrow(cs).borrow()
     })
